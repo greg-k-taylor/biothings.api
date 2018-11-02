@@ -1,6 +1,7 @@
 from networkx import nx
 from networkx import all_simple_paths
-from biothings.hub.datatransform import nested_lookup
+from biothings.hub.datatransform.utils import nested_lookup
+
 
 class RecChain(object):
     """
@@ -24,10 +25,11 @@ class RecChain(object):
         """Add obj1 to the graph as a root node"""
         self.graph.add_node(obj1)
 
-    def add_obj(self, obj1, obj2):
+    def add(self, obj1, obj2):
         """Add obj2 to the graph and then add an edge from obj1 to obj2"""
         # note: nx.DiGraph does not allow duplicate nodes or edges
         # this is preferred behavior here
+        print("RecordChain.add({}, {})".format(obj1, obj2))
         self.graph.add_node(obj2)
         self.graph.add_edge(obj1, obj2)
 
@@ -82,7 +84,9 @@ class RecChain(object):
                     yield i
 
     def find_left(self, ids):
-        return self.find(self.root_nodes(), ids)
+        for id in ids:
+            for leaf_node in self.find_leaf(id):
+                yield leaf_node
 
     def right(self, id):
         """Determine if the id (_, right) is registered"""
@@ -90,7 +94,9 @@ class RecChain(object):
 
     def find_right(self, ids):
         """Find the first id founding by searching the (_, right) identifiers"""
-        return self.find(self.leaf_nodes(), ids)
+        for id in ids:
+            for root_node in self.find_root(id):
+                yield root_node
 
     def root_nodes(self):
         root_nodes = [x for x in self.graph.nodes() if self.graph.out_degree(x) == 1 and self.graph.in_degree(x) == 0]
@@ -108,6 +114,13 @@ class RecChain(object):
             for path in all_simple_paths(self.graph, self.start, lf):
                 yield(path)
 
+    def find_root(self, n):
+        if self.graph.in_degree(n) == 0:
+            yield n
+        else:
+            for v1, v2 in self.graph.in_edges(n):
+                yield from self.find_leaf(v1)
+
     def find_leaf(self, n):
         if self.graph.out_degree(n) == 0:
             yield n
@@ -120,4 +133,3 @@ class RecChain(object):
         for r in self.root_nodes():
             for l in self.find_leaf(r):
                 yield r, l
-

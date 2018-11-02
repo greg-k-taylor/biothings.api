@@ -2,7 +2,7 @@ from biothings.hub.datatransform.datatransform import DataTransform
 from biothings.hub.datatransform.datatransform import IDStruct
 from biothings.hub.datatransform.datatransform import DataTransformEdge
 from biothings.hub.datatransform.datatransform import RegExEdge
-from biothings.hub.datatransform.datatransform import nested_lookup
+from biothings.hub.datatransform.utils import nested_lookup
 
 # only for testing purpose, this one is not optimized
 #from biothings.hub.datatransform.datatransform_serial import DataTransformSerial

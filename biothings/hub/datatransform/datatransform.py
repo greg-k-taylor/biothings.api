@@ -1,6 +1,7 @@
 import re
 
 from .histogram import Histogram
+from .record_chain import RecChain
 from biothings.utils.common import iter_n
 from biothings.utils.loggers import get_logger
 
@@ -19,6 +20,7 @@ class IDStruct(object):
         """
         self.forward = {}
         self.inverse = {}
+        self.rec_chain = RecChain()
         if field and doc_lst:
             self._init_strct(field, doc_lst)
 
@@ -119,7 +121,7 @@ class DataTransform(object):
     default_source = '_id'
 
     def __init__(self, input_types, output_types, skip_on_failure=False, skip_w_regex=None,
-                 idstruct_class=IDStruct, copy_from_doc=False):
+                 idstruct_class=RecChain, copy_from_doc=False):
         """
         Initialize the keylookup object and precompute paths from the
         start key to all target keys.
@@ -328,22 +330,3 @@ class RegExEdge(DataTransformEdge):
         for (left, right) in id_strct:
             res_id_strct.add(left, re.sub(self.from_regex, self.to_regex, right))
         return res_id_strct
-
-
-def nested_lookup(doc, field):
-    """
-    Performs a nested lookup of doc using a period (.) delimited
-    list of fields.  This is a nested dictionary lookup.
-    :param doc: document to perform lookup on
-    :param field: period delimited list of fields
-    :return:
-    """
-    value = doc
-    keys = field.split('.')
-    try:
-        for k in keys:
-            value = value[k]
-    except KeyError:
-        return None
-
-    return value

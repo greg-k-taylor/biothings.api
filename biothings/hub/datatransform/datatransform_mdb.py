@@ -5,8 +5,8 @@ from networkx import all_simple_paths, all_shortest_paths, nx
 from biothings.utils.common import iter_n
 from biothings.hub.datatransform import DataTransform
 from biothings.hub.datatransform import DataTransformEdge
-from biothings.hub.datatransform import IDStruct
-from biothings.hub.datatransform import nested_lookup
+from biothings.hub.datatransform.record_chain import RecChain
+from biothings.hub.datatransform.utils import nested_lookup
 import biothings.utils.mongo as mongo
 from biothings.utils.loggers import get_logger
 
@@ -58,11 +58,11 @@ class MongoDBEdge(DataTransformEdge):
         :param id_strct:
         :return:
         """
-        if not isinstance(id_strct, IDStruct):
+        if not isinstance(id_strct, RecChain):
             raise TypeError("edge_lookup id_struct is of the wrong type")
 
         # Build up a new_id_strct from the results
-        res_id_strct = IDStruct()
+        res_id_strct = RecChain()
 
         id_lst = id_strct.id_lst
         if len(id_lst):
@@ -71,7 +71,7 @@ class MongoDBEdge(DataTransformEdge):
             for d in find_lst:
                 for orig_id in id_strct.find_right(nested_lookup(d, self.lookup)):
                     res_id_strct.add(orig_id, nested_lookup(d, self.field))
-            #self.logger.debug("results for {} ids".format(res_id_strct))
+            self.logger.debug("results for {} ids".format(res_id_strct))
         return res_id_strct
 
 
@@ -134,7 +134,7 @@ class DataTransformMDB(DataTransform):
         self.paths = {}
         for output_type in self.output_types:
             for input_type in self.input_types:
-                self.logger.info("Compute Path From '{}' to '{}'".format(input_type[0], output_type))
+                # self.logger.info("Compute Path From '{}' to '{}'".format(input_type[0], output_type))
                 paths = [p for p in all_simple_paths(self.G, input_type[0], output_type)]
                 if not paths:
                     try:
@@ -263,7 +263,7 @@ class DataTransformMDB(DataTransform):
         #self.logger.debug("Travel From '{}' To '{}'".format(input_type[0], target))
 
         # Keep a running list of all saved hits
-        saved_hits = IDStruct()
+        saved_hits = RecChain()
 
         # Build the path structure, which will save results
         path_strct = _build_path_strct(input_type, doc_lst)
@@ -287,7 +287,7 @@ class DataTransformMDB(DataTransform):
                 val = nested_lookup(doc, input_type[1])
                 if val:
                     if not saved_hits.left(val):
-                        path_strct.add(val, val)
+                        path_strct.add_root(val)
 
         # Return a list of documents that have had their identifiers replaced
         # also return a list of documents that were not changed
