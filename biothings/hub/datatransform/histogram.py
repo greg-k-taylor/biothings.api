@@ -28,7 +28,7 @@ class Histogram(object):
         self._increment(self.io_histogram, key, size)
 
     def _construct_key(self, obj1, obj2):
-        return [obj1, obj2]
+        return (obj1, obj2)
 
     def _increment(self, hist, key, size):
         if size > 0:
