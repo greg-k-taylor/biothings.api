@@ -289,7 +289,7 @@ class DataTransformMDB(DataTransform):
         # Return a list of documents that have had their identifiers replaced
         # also return a list of documents that were not changed
         hit_lst, miss_lst = _build_hit_miss_lsts(doc_lst, saved_hits)
-        self.histogram.update_io(input_type,target,len(hit_lst), len(his_lst) + len(miss_lst))
+        self.histogram.update_io(input_type,target,len(hit_lst), len(hit_lst) + len(miss_lst))
         return hit_lst, miss_lst
 
     def _edge_lookup(self, edge_obj, id_strct):
