@@ -1,16 +1,16 @@
+from collections import OrderedDict
 
 
 class Histogram(object):
 
     def __init__(self):
-        self.io_histogram = {}
-        self.edge_histogram = {}
+        self.io_histogram = OrderedDict()
+        self.edge_histogram = OrderedDict()
 
     def __str__(self):
-        res = {
-            'io_hist': self.io_histogram,
-            'edge_hist': self.edge_histogram
-            }
+        res = OrderedDict()
+        res['io_hist'] = self.io_histogram
+        res['edge_hist'] = self.edge_histogram
         return str(res)
 
     def update_edge(self, v1, v2, size):
