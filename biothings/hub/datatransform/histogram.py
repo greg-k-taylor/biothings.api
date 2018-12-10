@@ -13,26 +13,26 @@ class Histogram(object):
         res['edge_hist'] = self.edge_histogram
         return str(res)
 
-    def update_edge(self, v1, v2, size):
+    def update_edge(self, v1, v2, size, total):
         """
         Update the edge histogram
         """
         key = self._construct_key(v1, v2)
-        self._increment(self.edge_histogram, key, size)
+        self._increment(self.edge_histogram, key, size, total)
 
-    def update_io(self, input_type, output_type, size):
+    def update_io(self, input_type, output_type, size, total):
         """
         Update the edge histogram
         """
         key = self._construct_key(input_type, output_type)
-        self._increment(self.io_histogram, key, size)
+        self._increment(self.io_histogram, key, size, total)
 
     def _construct_key(self, obj1, obj2):
         return (obj1, obj2)
 
-    def _increment(self, hist, key, size):
-        if size > 0:
-            if key not in hist.keys():
-                hist[key] = int(size)
-            else:
-                hist[key] += int(size)
+    def _increment(self, hist, key, size, total):
+        if key not in hist.keys():
+            hist[key] = (int(size), int(total))
+        else:
+            prev_size, prev_total = hist[key]
+            hist[key] = (int(size) + prev_size, int(total) + prev_total)
