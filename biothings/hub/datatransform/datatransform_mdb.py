@@ -271,9 +271,7 @@ class DataTransformMDB(DataTransform):
                 num_input_ids = len(path_strct)
                 path_strct = self._edge_lookup(edge, path_strct)
                 num_output_ids = len(path_strct)
-                if num_input_ids:
-                    # self.logger.debug("Edge {} - {}, {} searched returned {}".format(v1, v2, num_input_ids, num_output_ids))
-                    self.histogram.update_edge(v1, v2, num_output_ids, num_input_ids)
+                self.histogram.update_edge(v1, v2, num_output_ids, num_input_ids)
 
             if len(path_strct):
                 saved_hits += path_strct
